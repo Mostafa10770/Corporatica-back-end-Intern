@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask API Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-group, .form-container {
+            margin-bottom: 15px;
+        }
+        .form-group label, .form-container h2 {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select, .form-group textarea, .form-container textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button, .form-container button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-group button:hover, .form-container button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .visualize img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flask API Interface</h1>
+
+        <!-- Text Summarization -->
+        <div class="form-container">
+            <h2>Text Summarization</h2>
+            <form action="/summarize" method="post">
+                <textarea name="text" rows="4" cols="50" placeholder="Enter text to summarize...">{{ input_text_summary or '' }}</textarea><br>
+                <button type="submit">Summarize</button>
+            </form>
+            {% if summary %}
+            <h3>Summary:</h3>
+            <p>{{ summary }}</p>
+            {% endif %}
+        </div>
+        
+        <!-- Keyword Extraction -->
+        <div class="form-container">
+            <h2>Keyword Extraction</h2>
+            <form action="/keywords" method="post">
+                <textarea name="text" rows="4" cols="50" placeholder="Enter text to extract keywords...">{{ input_text_keywords or '' }}</textarea><br>
+                <button type="submit">Extract Keywords</button>
+            </form>
+            {% if keywords %}
+            <h3>Keywords:</h3>
+            <ul>
+                {% for keyword in keywords %}
+                <li>{{ keyword }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        
+        <!-- Sentiment Analysis -->
+        <div class="form-container">
+            <h2>Sentiment Analysis</h2>
+            <form action="/sentiment" method="post">
+                <textarea name="text" rows="4" cols="50" placeholder="Enter text to analyze sentiment...">{{ input_text_sentiment or '' }}</textarea><br>
+                <button type="submit">Analyze Sentiment</button>
+            </form>
+            {% if sentiment %}
+            <h3>Sentiment:</h3>
+            <p>{{ sentiment }}</p>
+            {% endif %}
+        </div>
+
+        <!-- File Upload Form -->
+        <div class="form-group">
+            <h2>Upload File</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="files">Choose files:</label>
+                <input type="file" id="files" name="files" multiple>
+                <button type="button" onclick="uploadFiles()">Upload</button>
+            </form>
+            <div class="result" id="upload-result"></div>
+        </div>
+
+        <!-- Data Processing Form -->
+        <div class="form-group">
+            <h2>Process Data</h2>
+            <input type="text" id="process-filename" placeholder="Enter filename">
+            <select id="stats">
+                <option value="all">All</option>
+                <option value="basic">Basic</option>
+                <option value="advanced">Advanced</option>
+            </select>
+            <button onclick="processData()">Process</button>
+            <div class="result" id="process-result"></div>
+        </div>
+
+        <!-- Data Query Form -->
+        <div class="form-group">
+            <h2>Query Data</h2>
+            <input type="text" id="query-filename" placeholder="Enter filename">
+            <textarea id="query" rows="4" placeholder="Enter your query"></textarea>
+            <button onclick="queryData()">Query</button>
+            <div class="result" id="query-result"></div>
+        </div>
+
+        <!-- Data Management Form -->
+        <div class="form-group">
+            <h2>Manage Data</h2>
+            <input type="text" id="manage-filename" placeholder="Enter filename">
+            <textarea id="manage-data" rows="4" placeholder="Enter JSON data"></textarea>
+            <button onclick="createData()">Create</button>
+            <button onclick="readData()">Read</button>
+            <button onclick="updateData()">Update</button>
+            <button onclick="deleteData()">Delete</button>
+            <div class="result" id="manage-result"></div>
+        </div>
+
+        <!-- Data Visualization Form -->
+        <div class="form-group visualize">
+            <h2>Visualize Data</h2>
+            <input type="text" id="visualize-filename" placeholder="Enter filename">
+            <select id="plot-type">
+                <option value="histogram">Histogram</option>
+                <option value="bar">Bar</option>
+                <option value="box">Box</option>
+            </select>
+            <input type="text" id="column-name" placeholder="Enter column name">
+            <button onclick="visualizeData()">Visualize</button>
+            <div class="result" id="visualize-result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function uploadFiles() {
+            const formData = new FormData(document.getElementById('upload-form'));
+            const response = await fetch('/upload', { method: 'POST', body: formData });
+            const result = await response.json();
+            document.getElementById('upload-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            if (response.ok) {
+                const filename = result.filenames[0]; // Assuming one file uploaded
+                document.getElementById('process-filename').value = filename;
+                document.getElementById('query-filename').value = filename;
+                document.getElementById('manage-filename').value = filename;
+                document.getElementById('visualize-filename').value = filename;
+            } else {
+                console.error('Upload failed:', result.message);
+            }
+        }
+
+        async function processData() {
+            const filename = document.getElementById('process-filename').value;
+            const stats = document.getElementById('stats').value;
+            const response = await fetch(`/process/${filename}?stats=${stats}`);
+            const result = await response.json();
+            document.getElementById('process-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function queryData() {
+            const filename = document.getElementById('query-filename').value;
+            const query = document.getElementById('query').value;
+            const response = await fetch(`/query/${filename}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query })
+            });
+            const result = await response.json();
+            document.getElementById('query-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function createData() {
+            const filename = document.getElementById('manage-filename').value;
+            const data = document.getElementById('manage-data').value;
+            const response = await fetch(`/data/${filename}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            });
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function readData() {
+            const filename = document.getElementById('manage-filename').value;
+            const response = await fetch(`/data/${filename}`);
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function updateData() {
+            const filename = document.getElementById('manage-filename').value;
+            const data = document.getElementById('manage-data').value;
+            const response = await fetch(`/data/${filename}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            });
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function deleteData() {
+            const filename = document.getElementById('manage-filename').value;
+            const indices = document.getElementById('manage-data').value;
+            const response = await fetch(`/data/${filename}`, {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ indices: JSON.parse(indices) })
+            });
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function visualizeData() {
+            const filename = document.getElementById('visualize-filename').value;
+            const plotType = document.getElementById('plot-type').value;
+            const column = document.getElementById('column-name').value;
+            const response = await fetch(`/visualize/${filename}?plot_type=${plotType}&column=${column}`);
+            const result = await response.json();
+            document.getElementById('visualize-result').innerHTML = `<img src="${result.plot_url}" alt="Plot">`;
+        }
+    </script>
+</body>
+</html>

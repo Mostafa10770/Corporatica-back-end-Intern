@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: flask_app_alex
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      FLASK_ENV: development
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    container_name: postgres_alex
+    environment:
+      POSTGRES_USER: alex
+      POSTGRES_PASSWORD: alexpassword
+      POSTGRES_DB: flaskapp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

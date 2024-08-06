@@ -1,0 +1,511 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textual Data Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Textual Data Processing</h1>
+        <div class="form-group">
+            <h2>Text Summarization</h2>
+            <textarea id="text-input-summary" rows="4" cols="50" placeholder="Enter text to summarize..."></textarea><br>
+            <button id="submit-summary">Summarize</button>
+            <div class="result" id="result-summary"></div>
+        </div>
+        <div class="form-group">
+            <h2>Keyword Extraction</h2>
+            <textarea id="text-input-keywords" rows="4" cols="50" placeholder="Enter text for keyword extraction..."></textarea><br>
+            <button id="submit-keywords">Extract Keywords</button>
+            <div class="result" id="result-keywords"></div>
+        </div>
+        <div class="form-group">
+            <h2>Sentiment Analysis</h2>
+            <textarea id="text-input-sentiment" rows="4" cols="50" placeholder="Enter text for sentiment analysis..."></textarea><br>
+            <button id="submit-sentiment">Analyze Sentiment</button>
+            <div class="result" id="result-sentiment"></div>
+        </div>
+        <div class="form-group">
+            <h2>T-SNE Visualization</h2>
+            <textarea id="text-input-tsne" rows="4" cols="50" placeholder="Enter text for T-SNE visualization..."></textarea><br>
+            <button id="submit-tsne">Generate T-SNE</button>
+            <div class="result" id="result-tsne"></div>
+        </div>
+        <button onclick="window.location.href='/'">Back to Home</button>
+    </div>
+    <script>
+        async function handleTextualTask(service, textInputId, resultId) {
+            var textInput = document.getElementById(textInputId).value;
+            var data = new FormData();
+            data.append('text', textInput);
+            var response = await fetch('/' + service, {
+                method: 'POST',
+                body: data
+            });
+            var result = await response.json();
+            document.getElementById(resultId).innerHTML = JSON.stringify(result, null, 2);
+        }
+
+        document.getElementById('submit-summary').addEventListener('click', function() {
+            handleTextualTask('summarize', 'text-input-summary', 'result-summary');
+        });
+
+        document.getElementById('submit-keywords').addEventListener('click', function() {
+            handleTextualTask('keywords', 'text-input-keywords', 'result-keywords');
+        });
+
+        document.getElementById('submit-sentiment').addEventListener('click', function() {
+            handleTextualTask('sentiment', 'text-input-sentiment', 'result-sentiment');
+        });
+
+        document.getElementById('submit-tsne').addEventListener('click', function() {
+            handleTextualTask('tsne', 'text-input-tsne', 'result-tsne');
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        select, textarea, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            text-align: left;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Processing with Flask</h1>
+        <label for="service">Choose a Service</label>
+        <select id="service">
+            <option value="summarize">Text Summarization</option>
+            <option value="keywords">Keyword Extraction</option>
+            <option value="sentiment">Sentiment Analysis</option>
+            <option value="tsne">T-SNE Visualization</option>
+        </select>
+        <label for="text-input">Text Input</label>
+        <textarea id="text-input" rows="4" placeholder="Enter text..."></textarea>
+        <button id="submit-btn">Submit</button>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', async function() {
+            const service = document.getElementById('service').value;
+            const text = document.getElementById('text-input').value;
+            const data = new FormData();
+            data.append('text', text);
+
+            const response = await fetch('/' + service, {
+                method: 'POST',
+                body: data
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerHTML = formatResult(service, result);
+        });
+
+        function formatResult(service, result) {
+            let formattedResult = '';
+            switch(service) {
+                case 'summarize':
+                    formattedResult = `<strong>Summary:</strong> ${result.summary}`;
+                    break;
+                case 'keywords':
+                    formattedResult = `<strong>Keywords:</strong> ${result.keywords.join(', ')}`;
+                    break;
+                case 'sentiment':
+                    formattedResult = `<strong>Sentiment:</strong> ${result.sentiment}`;
+                    break;
+                case 'tsne':
+                    formattedResult = `<strong>T-SNE Visualization Data:</strong> ${JSON.stringify(result.tsne)}`;
+                    break;
+                default:
+                    formattedResult = `<strong>Result:</strong> ${JSON.stringify(result)}`;
+            }
+            return formattedResult;
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        select, textarea, button, input[type="text"] {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            text-align: left;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Processing with Flask</h1>
+        <label for="service">Choose a Service</label>
+        <select id="service">
+            <option value="summarize">Text Summarization</option>
+            <option value="keywords">Keyword Extraction</option>
+            <option value="sentiment">Sentiment Analysis</option>
+            <option value="tsne">T-SNE Visualization</option>
+            <option value="search">Search</option>
+            <option value="categorization">Categorization</option>
+            <option value="custom_query">Custom Query</option>
+        </select>
+        <div id="text-input-container">
+            <label for="text-input">Text Input</label>
+            <textarea id="text-input" rows="4" placeholder="Enter text..."></textarea>
+        </div>
+        <div id="search-input-container" style="display: none;">
+            <label for="search-input">Search Word</label>
+            <input type="text" id="search-input" placeholder="Enter word to search...">
+        </div>
+        <button id="submit-btn">Submit</button>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        document.getElementById('service').addEventListener('change', function() {
+            const service = this.value;
+            const textInputContainer = document.getElementById('text-input-container');
+            const searchInputContainer = document.getElementById('search-input-container');
+
+            if (service === 'search') {
+                textInputContainer.style.display = 'none';
+                searchInputContainer.style.display = 'block';
+            } else {
+                textInputContainer.style.display = 'block';
+                searchInputContainer.style.display = 'none';
+            }
+        });
+
+        document.getElementById('submit-btn').addEventListener('click', async function() {
+            const service = document.getElementById('service').value;
+            const text = document.getElementById('text-input').value;
+            const searchWord = document.getElementById('search-input').value;
+            const data = new FormData();
+            if (service === 'search') {
+                data.append('text', searchWord);
+            } else {
+                data.append('text', text);
+            }
+
+            const response = await fetch('/' + service, {
+                method: 'POST',
+                body: data
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerHTML = formatResult(service, result);
+        });
+
+        function formatResult(service, result) {
+            let formattedResult = '';
+            switch(service) {
+                case 'summarize':
+                    formattedResult = `<strong>Summary:</strong> ${result.summary}`;
+                    break;
+                case 'keywords':
+                    formattedResult = `<strong>Keywords:</strong> ${result.keywords.join(', ')}`;
+                    break;
+                case 'sentiment':
+                    formattedResult = `<strong>Sentiment:</strong> ${result.sentiment}`;
+                    break;
+                case 'tsne':
+                    formattedResult = `<strong>T-SNE Visualization Data:</strong><br><img src="${result.plot_url}" alt="T-SNE Plot">`;
+                    break;
+                case 'search':
+                    formattedResult = `<strong>Search Results:</strong> ${result.occurrences}`;
+                    break;
+                case 'categorization':
+                    formattedResult = `<strong>Categorization Results:</strong> ${result.categorization_results}`;
+                    break;
+                case 'custom_query':
+                    formattedResult = `<strong>Custom Query Results:</strong> ${result.query_results}`;
+                    break;
+                default:
+                    formattedResult = `<strong>Result:</strong> ${JSON.stringify(result)}`;
+            }
+            return formattedResult;
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        textarea, input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #285ba7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #215a88;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #tsne-plot {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        .home-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Processing with Flask</h1>
+
+        <div class="form-container">
+            <h2>Choose a Service</h2>
+            <select id="service">
+                <option value="summarize">Text Summarization</option>
+                <option value="keywords">Keyword Extraction</option>
+                <option value="sentiment">Sentiment Analysis</option>
+                <option value="tsne">T-SNE Visualization</option>
+                <option value="search">Search</option>
+                <option value="categorize">Categorization</option>
+                <option value="custom_query">Custom Query</option>
+            </select>
+        </div>
+
+        <div class="form-container" id="input-form">
+            <h2>Text Input</h2>
+            <textarea id="text-input" rows="4" cols="50" placeholder="Enter your text..."></textarea>
+            <div id="additional-input" style="display: none;">
+                <input type="text" id="additional-field" placeholder="Enter additional input...">
+            </div>
+            <button id="submit-btn">Submit</button>
+        </div>
+
+        <div id="result-container" class="result" style="display: none;"></div>
+        <canvas id="tsne-plot" style="display: none;"></canvas>
+
+        <a href="/" class="home-button">Return to Home</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('service').addEventListener('change', function() {
+            var service = this.value;
+            var additionalInput = document.getElementById('additional-input');
+            var tsnePlot = document.getElementById('tsne-plot');
+            tsnePlot.style.display = 'none';
+            if (service === 'search' || service === 'custom_query') {
+                additionalInput.style.display = 'block';
+            } else {
+                additionalInput.style.display = 'none';
+            }
+        });
+
+        document.getElementById('submit-btn').addEventListener('click', async function() {
+            var service = document.getElementById('service').value;
+            var textInput = document.getElementById('text-input').value;
+            var additionalField = document.getElementById('additional-field').value;
+
+            var data = new FormData();
+            data.append('text', textInput);
+            if (service === 'search' || service === 'custom_query') {
+                data.append(service === 'search' ? 'search_term' : 'query', additionalField);
+            }
+
+            var response = await fetch('/' + service, {
+                method: 'POST',
+                body: data
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            var tsnePlot = document.getElementById('tsne-plot');
+            resultContainer.innerHTML = '';
+            tsnePlot.style.display = 'none';
+            if (service === 'summarize') {
+                resultContainer.innerHTML = `<strong>Summary:</strong> ${result.summary}`;
+            } else if (service === 'keywords') {
+                resultContainer.innerHTML = `<strong>Keywords:</strong> ${result.keywords.join(', ')}`;
+            } else if (service === 'sentiment') {
+                resultContainer.innerHTML = `<strong>Sentiment:</strong> ${result.sentiment}`;
+            } else if (service === 'tsne') {
+                var ctx = tsnePlot.getContext('2d');
+                tsnePlot.style.display = 'block';
+                var tsneData = {
+                    labels: result.words,
+                    datasets: [{
+                        label: 'T-SNE',
+                        data: result.tsne.map((point, index) => ({ x: point[0], y: point[1], label: result.words[index] })),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                };
+                new Chart(ctx, {
+                    type: 'scatter',
+                    data: tsneData,
+                    options: {
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.raw.label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            } else if (service === 'search') {
+                resultContainer.innerHTML = `<strong>Search Result:</strong> ${result.result}`;
+            } else if (service === 'categorize') {
+                resultContainer.innerHTML = `<strong>Category:</strong> ${result.category}`;
+            } else if (service === 'custom_query') {
+                resultContainer.innerHTML = `<strong>Occurrences:</strong> ${result.occurrences}`;
+            }
+            resultContainer.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

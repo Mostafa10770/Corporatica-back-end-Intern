@@ -1,0 +1,910 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabular Data Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        input[type="file"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .home-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tabular Data Processing with Flask</h1>
+
+        <div class="form-container">
+            <h2>Upload File</h2>
+            <input type="file" id="file-input">
+            <button id="upload-btn">Upload</button>
+        </div>
+
+        <div class="form-container">
+            <h2>Query Data</h2>
+            <input type="text" id="filename-query" placeholder="Enter filename...">
+            <textarea id="query-input" rows="4" placeholder="Enter SQL query..."></textarea>
+            <button id="query-btn">Execute Query</button>
+        </div>
+
+        <div class="form-container">
+            <h2>Visualize Data</h2>
+            <input type="text" id="filename-visualize" placeholder="Enter filename...">
+            <select id="plot-type">
+                <option value="histogram">Histogram</option>
+                <option value="bar">Bar Chart</option>
+                <option value="box">Box Plot</option>
+            </select>
+            <input type="text" id="column-visualize" placeholder="Enter column name...">
+            <button id="visualize-btn">Visualize</button>
+        </div>
+
+        <div id="result-container" class="result" style="display: none;"></div>
+        <canvas id="visualize-plot" style="display: none;"></canvas>
+
+        <a href="/" class="home-button">Return to Home</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('upload-btn').addEventListener('click', async function() {
+            var fileInput = document.getElementById('file-input');
+            var formData = new FormData();
+            for (var i = 0; i < fileInput.files.length; i++) {
+                formData.append('files', fileInput.files[i]);
+            }
+
+            var response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>Upload Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        document.getElementById('query-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-query').value;
+            var query = document.getElementById('query-input').value;
+
+            var response = await fetch('/query/' + filename, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>Query Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        document.getElementById('visualize-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-visualize').value;
+            var plotType = document.getElementById('plot-type').value;
+            var column = document.getElementById('column-visualize').value;
+
+            var response = await fetch(`/visualize/${filename}?plot_type=${plotType}&column=${column}`, {
+                method: 'GET'
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            var visualizePlot = document.getElementById('visualize-plot');
+            resultContainer.innerHTML = `<strong>Visualization Result:</strong>`;
+            visualizePlot.style.display = 'block';
+
+            var ctx = visualizePlot.getContext('2d');
+            new Chart(ctx, {
+                type: plotType,
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: column,
+                        data: JSON.parse(result.plot_url),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabular Data Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        input[type="file"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .home-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+        #visualize-plot {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tabular Data Processing with Flask</h1>
+
+        <div class="form-container">
+            <h2>Choose a Service</h2>
+            <select id="service">
+                <option value="upload">Upload File</option>
+                <option value="query">Query Data</option>
+                <option value="visualize">Visualize Data</option>
+                <option value="crud">CRUD Operations</option>
+            </select>
+        </div>
+
+        <div class="form-container" id="upload-form" style="display: none;">
+            <h2>Upload File</h2>
+            <input type="file" id="file-input">
+            <button id="upload-btn">Upload</button>
+        </div>
+
+        <div class="form-container" id="query-form" style="display: none;">
+            <h2>Query Data</h2>
+            <input type="text" id="filename-query" placeholder="Enter filename...">
+            <textarea id="query-input" rows="4" placeholder="Enter SQL query..."></textarea>
+            <button id="query-btn">Execute Query</button>
+        </div>
+
+        <div class="form-container" id="visualize-form" style="display: none;">
+            <h2>Visualize Data</h2>
+            <input type="text" id="filename-visualize" placeholder="Enter filename...">
+            <select id="plot-type">
+                <option value="histogram">Histogram</option>
+                <option value="bar">Bar Chart</option>
+                <option value="box">Box Plot</option>
+            </select>
+            <input type="text" id="column-visualize" placeholder="Enter column name...">
+            <button id="visualize-btn">Visualize</button>
+        </div>
+
+        <div class="form-container" id="crud-form" style="display: none;">
+            <h2>CRUD Operations</h2>
+            <input type="text" id="filename-crud" placeholder="Enter filename...">
+            <select id="crud-action">
+                <option value="read">Read Data</option>
+                <option value="create">Create Data</option>
+                <option value="update">Update Data</option>
+                <option value="delete">Delete Data</option>
+            </select>
+            <textarea id="crud-input" rows="4" placeholder="Enter data (JSON format)..."></textarea>
+            <button id="crud-btn">Execute CRUD</button>
+        </div>
+
+        <div id="result-container" class="result" style="display: none;"></div>
+        <canvas id="visualize-plot" style="display: none;"></canvas>
+
+        <a href="/" class="home-button">Return to Home</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('service').addEventListener('change', function() {
+            var service = this.value;
+            var forms = ['upload-form', 'query-form', 'visualize-form', 'crud-form'];
+            forms.forEach(function(form) {
+                document.getElementById(form).style.display = 'none';
+            });
+            if (service === 'upload') {
+                document.getElementById('upload-form').style.display = 'block';
+            } else if (service === 'query') {
+                document.getElementById('query-form').style.display = 'block';
+            } else if (service === 'visualize') {
+                document.getElementById('visualize-form').style.display = 'block';
+            } else if (service === 'crud') {
+                document.getElementById('crud-form').style.display = 'block';
+            }
+        });
+
+        document.getElementById('upload-btn').addEventListener('click', async function() {
+            var fileInput = document.getElementById('file-input');
+            var formData = new FormData();
+            for (var i = 0; i < fileInput.files.length; i++) {
+                formData.append('files', fileInput.files[i]);
+            }
+
+            var response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>Upload Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        document.getElementById('query-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-query').value;
+            var query = document.getElementById('query-input').value;
+
+            var response = await fetch('/query/' + filename, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>Query Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        document.getElementById('visualize-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-visualize').value;
+            var plotType = document.getElementById('plot-type').value;
+            var column = document.getElementById('column-visualize').value;
+
+            var response = await fetch(`/visualize/${filename}?plot_type=${plotType}&column=${column}`, {
+                method: 'GET'
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            var visualizePlot = document.getElementById('visualize-plot');
+            resultContainer.innerHTML = `<strong>Visualization Result:</strong>`;
+            visualizePlot.style.display = 'block';
+
+            var ctx = visualizePlot.getContext('2d');
+            new Chart(ctx, {
+                type: plotType,
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: column,
+                        data: JSON.parse(result.plot_url),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+
+        document.getElementById('crud-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-crud').value;
+            var action = document.getElementById('crud-action').value;
+            var data = document.getElementById('crud-input').value;
+
+            var response = await fetch(`/data/${filename}`, {
+                method: action.toUpperCase(),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: data
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>CRUD Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabular Data Processing with Flask</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        input[type="file"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .home-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+        #visualize-plot {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tabular Data Processing with Flask</h1>
+
+        <div class="form-container">
+            <h2>Choose a Service</h2>
+            <select id="service">
+                <option value="upload">Upload File</option>
+                <option value="query">Query Data</option>
+                <option value="visualize">Visualize Data</option>
+                <option value="crud">CRUD Operations</option>
+            </select>
+        </div>
+
+        <div class="form-container" id="upload-form" style="display: none;">
+            <h2>Upload File</h2>
+            <input type="file" id="file-input">
+            <button id="upload-btn">Upload</button>
+        </div>
+
+        <div class="form-container" id="query-form" style="display: none;">
+            <h2>Query Data</h2>
+            <input type="text" id="filename-query" placeholder="Enter filename...">
+            <textarea id="query-input" rows="4" placeholder="Enter SQL query..."></textarea>
+            <button id="query-btn">Execute Query</button>
+        </div>
+
+        <div class="form-container" id="visualize-form" style="display: none;">
+            <h2>Visualize Data</h2>
+            <input type="text" id="filename-visualize" placeholder="Enter filename...">
+            <select id="plot-type">
+                <option value="histogram">Histogram</option>
+                <option value="bar">Bar Chart</option>
+                <option value="box">Box Plot</option>
+            </select>
+            <input type="text" id="column-visualize" placeholder="Enter column name...">
+            <button id="visualize-btn">Visualize</button>
+        </div>
+
+        <div class="form-container" id="crud-form" style="display: none;">
+            <h2>CRUD Operations</h2>
+            <input type="text" id="filename-crud" placeholder="Enter filename...">
+            <select id="crud-action">
+                <option value="GET">Read Data</option>
+                <option value="POST">Create Data</option>
+                <option value="PUT">Update Data</option>
+                <option value="DELETE">Delete Data</option>
+            </select>
+            <textarea id="crud-input" rows="4" placeholder="Enter data (JSON format)..."></textarea>
+            <button id="crud-btn">Execute CRUD</button>
+        </div>
+
+        <div id="result-container" class="result" style="display: none;"></div>
+        <canvas id="visualize-plot" style="display: none;"></canvas>
+
+        <a href="/" class="home-button">Return to Home</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('service').addEventListener('change', function() {
+            var service = this.value;
+            var forms = ['upload-form', 'query-form', 'visualize-form', 'crud-form'];
+            forms.forEach(function(form) {
+                document.getElementById(form).style.display = 'none';
+            });
+            if (service === 'upload') {
+                document.getElementById('upload-form').style.display = 'block';
+            } else if (service === 'query') {
+                document.getElementById('query-form').style.display = 'block';
+            } else if (service === 'visualize') {
+                document.getElementById('visualize-form').style.display = 'block';
+            } else if (service === 'crud') {
+                document.getElementById('crud-form').style.display = 'block';
+            }
+        });
+
+        document.getElementById('upload-btn').addEventListener('click', async function() {
+            var fileInput = document.getElementById('file-input');
+            var formData = new FormData();
+            for (var i = 0; i < fileInput.files.length; i++) {
+                formData.append('files', fileInput.files[i]);
+            }
+
+            var response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>Upload Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        document.getElementById('query-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-query').value;
+            var query = document.getElementById('query-input').value;
+
+            var response = await fetch('/query/' + filename, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>Query Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+
+        document.getElementById('visualize-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-visualize').value;
+            var plotType = document.getElementById('plot-type').value;
+            var column = document.getElementById('column-visualize').value;
+
+            var response = await fetch(`/visualize/${filename}?plot_type=${plotType}&column=${column}`, {
+                method: 'GET'
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            var visualizePlot = document.getElementById('visualize-plot');
+            resultContainer.innerHTML = `<strong>Visualization Result:</strong>`;
+            visualizePlot.style.display = 'block';
+
+            var ctx = visualizePlot.getContext('2d');
+            new Chart(ctx, {
+                type: plotType,
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: column,
+                        data: JSON.parse(result.plot_url),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+
+        document.getElementById('crud-btn').addEventListener('click', async function() {
+            var filename = document.getElementById('filename-crud').value;
+            var action = document.getElementById('crud-action').value;
+            var data = document.getElementById('crud-input').value;
+
+            var response = await fetch(`/data/${filename}`, {
+                method: action,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: data
+            });
+
+            var result = await response.json();
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<strong>CRUD Result:</strong> ${JSON.stringify(result)}`;
+            resultContainer.style.display = 'block';
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabular Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #007bff;
+        }
+        .form-group {
+            margin-bottom: 30px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input[type="file"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+        .visualize img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .nav a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/textual_data">Textual Data</a>
+            <a href="/image_data">Image Data</a>
+        </div>
+        <h1>Tabular Data</h1>
+
+        <!-- File Upload Form -->
+        <div class="form-group">
+            <h2>Upload File</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="files">Choose files:</label>
+                <input type="file" id="files" name="files" multiple>
+                <button type="button" onclick="uploadFiles()">Upload</button>
+            </form>
+            <div class="result" id="upload-result"></div>
+        </div>
+
+        <!-- Process Data Form -->
+        <div class="form-group">
+            <h2>Process Data</h2>
+            <label for="process-filename">Filename:</label>
+            <input type="text" id="process-filename" placeholder="Enter filename">
+            <label for="stats">Statistics Type:</label>
+            <select id="stats">
+                <option value="all">All</option>
+                <option value="basic">Basic</option>
+                <option value="advanced">Advanced</option>
+            </select>
+            <button onclick="processData()">Process</button>
+            <div class="result" id="process-result"></div>
+        </div>
+
+        <!-- Query Data Form -->
+        <div class="form-group">
+            <h2>Query Data</h2>
+            <label for="query-filename">Filename:</label>
+            <input type="text" id="query-filename" placeholder="Enter filename">
+            <label for="query">SQL Query:</label>
+            <textarea id="query" rows="4" placeholder="Enter your query"></textarea>
+            <button onclick="queryData()">Query</button>
+            <div class="result" id="query-result"></div>
+        </div>
+
+        <!-- Manage Data Form -->
+        <div class="form-group">
+            <h2>Manage Data</h2>
+            <label for="manage-filename">Filename:</label>
+            <input type="text" id="manage-filename" placeholder="Enter filename">
+            <label for="manage-data">JSON Data:</label>
+            <textarea id="manage-data" rows="4" placeholder="Enter JSON data"></textarea>
+            <button onclick="createData()">Create</button>
+            <button onclick="readData()">Read</button>
+            <button onclick="updateData()">Update</button>
+            <button onclick="deleteData()">Delete</button>
+            <div class="result" id="manage-result"></div>
+        </div>
+
+        <!-- Visualize Data Form -->
+        <div class="form-group visualize">
+            <h2>Visualize Data</h2>
+            <label for="visualize-filename">Filename:</label>
+            <input type="text" id="visualize-filename" placeholder="Enter filename">
+            <label for="plot-type">Plot Type:</label>
+            <select id="plot-type">
+                <option value="histogram">Histogram</option>
+                <option value="bar">Bar</option>
+                <option value="box">Box</option>
+            </select>
+            <label for="column-name">Column Name:</label>
+            <input type="text" id="column-name" placeholder="Enter column name">
+            <button onclick="visualizeData()">Visualize</button>
+            <div class="result" id="visualize-result"></div>
+        </div>
+    </div>
+    <script>
+        async function uploadFiles() {
+            const formData = new FormData(document.getElementById('upload-form'));
+            const response = await fetch('/upload', { method: 'POST', body: formData });
+            const result = await response.json();
+            document.getElementById('upload-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            if (response.ok) {
+                const filename = result.filenames[0]; // Assuming one file uploaded
+                document.getElementById('process-filename').value = filename;
+                document.getElementById('query-filename').value = filename;
+                document.getElementById('manage-filename').value = filename;
+                document.getElementById('visualize-filename').value = filename;
+            } else {
+                console.error('Upload failed:', result.message);
+            }
+        }
+
+        async function processData() {
+            const filename = document.getElementById('process-filename').value;
+            const stats = document.getElementById('stats').value;
+            const response = await fetch(`/process/${filename}?stats=${stats}`);
+            const result = await response.json();
+            document.getElementById('process-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function queryData() {
+            const filename = document.getElementById('query-filename').value;
+            const query = document.getElementById('query').value;
+            const response = await fetch(`/query/${filename}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query })
+            });
+            const result = await response.json();
+            document.getElementById('query-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function createData() {
+            const filename = document.getElementById('manage-filename').value;
+            const data = document.getElementById('manage-data').value;
+            const response = await fetch(`/data/${filename}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            });
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function readData() {
+            const filename = document.getElementById('manage-filename').value;
+            const response = await fetch(`/data/${filename}`);
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function updateData() {
+            const filename = document.getElementById('manage-filename').value;
+            const data = document.getElementById('manage-data').value;
+            const response = await fetch(`/data/${filename}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            });
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function deleteData() {
+            const filename = document.getElementById('manage-filename').value;
+            const indices = document.getElementById('manage-data').value;
+            const response = await fetch(`/data/${filename}`, {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ indices: JSON.parse(indices) })
+            });
+            const result = await response.json();
+            document.getElementById('manage-result').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function visualizeData() {
+            const filename = document.getElementById('visualize-filename').value;
+            const plotType = document.getElementById('plot-type').value;
+            const column = document.getElementById('column-name').value;
+            const response = await fetch(`/visualize/${filename}?plot_type=${plotType}&column=${column}`);
+            const result = await response.json();
+            document.getElementById('visualize-result').innerHTML = `<img src="${result.plot_url}" alt="Plot">`;
+        }
+    </script>
+</body>
+</html>
