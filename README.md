@@ -150,8 +150,6 @@ Here is a visualization from the tabular data task:
 Here is a test from the image part:
 ![Image Test](https://github.com/user-attachments/assets/5c991a50-f8b9-4814-bdf9-8c6ea3b8e501)
 
-## Contributing
-Contributions are welcome! Please fork the repository and submit a pull request with your changes. Ensure that your code follows the project's coding standards and is well-documented.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
