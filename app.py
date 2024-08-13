@@ -96,11 +96,6 @@ def index():
 def textual_data():
     return render_template('textual_data.html')
 
-# @app.route('/tabular_data')
-# def tabular_data():
-#     return render_template('tabular_data.html')
-
-
 @app.route('/image_data')
 def image_data():
     return render_template('image_data.html')
@@ -148,6 +143,7 @@ def upload_image():
     return jsonify({"message": "Images successfully uploaded", "files": file_info}), 200
 
 
+###################################### image Data Processing ######################################
 
 
 @app.route('/uploads/<filename>')
@@ -190,45 +186,6 @@ def get_segmentation_mask(filename):
     segmentation_mask = generate_segmentation_mask(image_path)
     return send_file(segmentation_mask, mimetype='image/png')
 
-# @app.route('/resize/<filename>', methods=['POST'])
-# def resize_image(filename):
-#     width = request.json.get('width')
-#     height = request.json.get('height')
-#     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#     if not os.path.exists(image_path):
-#         return jsonify({"error": "File not found"}), 404
-
-#     try:
-#         image = Image.open(image_path)
-#         resized_image = image.resize((width, height))
-#         img_io = io.BytesIO()
-#         resized_image.save(img_io, 'PNG')
-#         img_io.seek(0)
-#         return send_file(img_io, mimetype='image/png')
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
-# @app.route('/crop/<filename>', methods=['POST'])
-# def crop_image(filename):
-#     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#     image = Image.open(image_path)
-#     left = request.json.get('left')
-#     top = request.json.get('top')
-#     right = request.json.get('right')
-#     bottom = request.json.get('bottom')
-
-#     if left < 0 or top < 0 or right > image.width or bottom > image.height or left >= right or top >= bottom:
-#         logging.error("Invalid crop coordinates")
-#         return jsonify({"error": "Invalid crop coordinates"}), 400
-
-#     cropped_image = image.crop((left, top, right, bottom))
-    
-#     img_io = io.BytesIO()
-#     cropped_image.save(img_io, 'PNG')
-#     img_io.seek(0)
-    
-#     return send_file(img_io, mimetype='image/png')
-
 
 
 @app.route('/resize/<filename>', methods=['POST'])
@@ -251,23 +208,24 @@ def resize_image(filename):
         logging.error(f"Error resizing image {filename}: {e}")
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/crop/<filename>', methods=['POST'])
 def crop_image(filename):
     try:
-        left = int(request.json.get('left'))
-        top = int(request.json.get('top'))
-        right = int(request.json.get('right'))
-        bottom = int(request.json.get('bottom'))
+        x = int(request.json.get('x'))
+        y = int(request.json.get('y'))
+        width = int(request.json.get('width'))
+        height = int(request.json.get('height'))
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
         if not os.path.exists(image_path):
             return jsonify({"error": "File not found"}), 404
 
         with Image.open(image_path) as image:
-            if left < 0 or top < 0 or right > image.width or bottom > image.height or left >= right or top >= bottom:
+            if x < 0 or y < 0 or x + width > image.width or y + height > image.height:
                 return jsonify({"error": "Invalid crop coordinates"}), 400
 
-            cropped_image = image.crop((left, top, right, bottom))
+            cropped_image = image.crop((x, y, x + width, y + height))
             img_io = io.BytesIO()
             cropped_image.save(img_io, 'PNG')
             img_io.seek(0)
@@ -275,13 +233,6 @@ def crop_image(filename):
     except Exception as e:
         logging.error(f"Error cropping image {filename}: {e}")
         return jsonify({"error": str(e)}), 500
-
-
-
-
-
-
-
 
 
 
@@ -322,20 +273,7 @@ def convert_image(filename):
         return jsonify({"error": f"General error converting image: {str(e)}"}), 500
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+###################################### Textual Data Processing ######################################
 
 @app.route('/summarize', methods=['POST'])
 def summarize():
@@ -406,6 +344,11 @@ def custom_query():
     occurrences = text.count(query)
     return jsonify({'occurrences': occurrences, 'input_text_query': text, 'query': query})
 
+
+
+
+
+###################################### Tabular Data Processing ######################################
 
 
 @app.route('/tabular_data')
@@ -625,4 +568,4 @@ def internal_error(e):
     return jsonify({'message': 'Internal server error'}), 500
 
 if __name__ == "__main__":
-    app.run(port=5005, debug=True)
+    app.run(port=5000, debug=True)
