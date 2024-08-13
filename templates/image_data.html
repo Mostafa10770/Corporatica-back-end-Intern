@@ -8,22 +8,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-
     <div class="container">
         <div class="nav">
             <a href="/">Home</a>
             <a href="/textual_data">Textual Data</a>
             <a href="/tabular_data">Tabular Data</a>
         </div>
-
         <h1>Image Processing with Flask</h1>
         <div class="row py-4">
             <div class="col-lg-8 mx-auto">
-                <!-- Upload image input-->
+                <!-- Upload image input -->
                 <form id="uploadForm" enctype="multipart/form-data" method="post">
                     <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
                         <input id="upload" type="file" name="images" multiple class="form-control border-0">
-                        <!-- <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose files</label> -->
                         <div class="input-group-append">
                             <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
                                 <i class="fa fa-cloud-upload mr-2 text-muted"></i>
@@ -33,47 +30,22 @@
                     </div>
                     <button type="button" class="btn btn-primary" onclick="uploadFiles()">Upload</button>
                 </form>
-
                 <div id="uploadedImages" class="mt-4"></div>
 
-                <h2 class="mt-4">Actions</h2>
-                <select id="filename" class="form-control my-2">
-                    <option value="" disabled selected>Select an image</option>
+                <h2 class="mt-4">Select Service</h2>
+                <select id="service" class="form-control my-2" onchange="showService()">
+                    <option value="" disabled selected>Select a service</option>
+                    <option value="histogram">Histogram</option>
+                    <option value="segmentation">Segmentation Mask</option>
+                    <option value="resize">Resize</option>
+                    <option value="crop">Crop</option>
+                    <option value="convert">Convert</option>
                 </select>
-
-                <button onclick="getHistogram()" class="btn btn-primary">Get Histogram</button>
-                <img id="histogram" src="#" alt="Histogram" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">
-
-                <button onclick="getSegmentation()" class="btn btn-primary">Get Segmentation Mask</button>
-                <img id="segmentation" src="#" alt="Segmentation Mask" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">
-
-                <h3 class="mt-4">Resize Image</h3>
-                <input type="number" id="resizeWidth" placeholder="Width" class="form-control my-2">
-                <input type="number" id="resizeHeight" placeholder="Height" class="form-control my-2">
-                <button onclick="resizeImage()" class="btn btn-primary">Resize</button>
-                <img id="resized" src="#" alt="Resized Image" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">
-
-                <h3 class="mt-4">Crop Image</h3>
-                <input type="number" id="cropLeft" placeholder="Left" class="form-control my-2">
-                <input type="number" id="cropTop" placeholder="Top" class="form-control my-2">
-                <input type="number" id="cropRight" placeholder="Right" class="form-control my-2">
-                <input type="number" id="cropBottom" placeholder="Bottom" class="form-control my-2">
-                <button onclick="cropImage()" class="btn btn-primary">Crop</button>
-                <img id="cropped" src="#" alt="Cropped Image" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">
-
-                <h3 class="mt-4">Convert Image</h3>
-                <select id="convertFormat" class="form-control my-2">
-                    <option value="jpeg">JPEG</option>
-                    <option value="png">PNG</option>
-                    <option value="bmp">BMP</option>
-                    <option value="gif">GIF</option>
-                    <option value="tiff">TIFF</option>
-                </select>
-                <button onclick="convertImage()" class="btn btn-primary">Convert</button>
-                <img id="converted" src="#" alt="Converted Image" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">
+                <div id="serviceContainer" class="mt-4"></div>
             </div>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -95,6 +67,62 @@
                 });
             } else {
                 console.error('Upload failed:', result.message);
+            }
+        }
+
+        function showService() {
+            const service = document.getElementById('service').value;
+            const container = document.getElementById('serviceContainer');
+            container.innerHTML = '';
+            const filenameSelect = `
+                <select id="filename" class="form-control my-2">
+                    <option value="" disabled selected>Select an image</option>
+                </select>`;
+            switch (service) {
+                case 'histogram':
+                    container.innerHTML = filenameSelect + `
+                        <button onclick="getHistogram()" class="btn btn-primary">Get Histogram</button>
+                        <img id="histogram" src="#" alt="Histogram" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">`;
+                    break;
+                case 'segmentation':
+                    container.innerHTML = filenameSelect + `
+                        <button onclick="getSegmentation()" class="btn btn-primary">Get Segmentation Mask</button>
+                        <img id="segmentation" src="#" alt="Segmentation Mask" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">`;
+                    break;
+                case 'resize':
+                    container.innerHTML = filenameSelect + `
+                        <h3 class="mt-4">Resize Image</h3>
+                        <input type="number" id="resizeWidth" placeholder="Width" class="form-control my-2">
+                        <input type="number" id="resizeHeight" placeholder="Height" class="form-control my-2">
+                        <button onclick="resizeImage()" class="btn btn-primary">Resize</button>
+                        <img id="resized" src="#" alt="Resized Image" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">`;
+                    break;
+                case 'crop':
+                    container.innerHTML = filenameSelect + `
+                        <h3 class="mt-4">Crop Image</h3>
+                        <input type="number" id="cropX" placeholder="X" class="form-control my-2">
+                        <input type="number" id="cropY" placeholder="Y" class="form-control my-2">
+                        <input type="number" id="cropWidth" placeholder="Width" class="form-control my-2">
+                        <input type="number" id="cropHeight" placeholder="Height" class="form-control my-2">
+                        <button onclick="cropImage()" class="btn btn-primary">Crop</button>
+                        <img id="cropped" src="#" alt="Cropped Image" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">`;
+                    break;
+                case 'convert':
+                    container.innerHTML = filenameSelect + `
+                        <h3 class="mt-4">Convert Image</h3>
+                        <select id="convertFormat" class="form-control my-2">
+                            <option value="jpeg">JPEG</option>
+                            <option value="png">PNG</option>
+                            <option value="bmp">BMP</option>
+                            <option value="gif">GIF</option>
+                            <option value="tiff">TIFF</option>
+                        </select>
+                        <button onclick="convertImage()" class="btn btn-primary">Convert</button>
+                        <img id="converted" src="#" alt="Converted Image" class="img-fluid rounded shadow-sm mx-auto d-block my-2" style="display: none;">
+                        <a id="downloadConverted" href="#" class="btn btn-success mt-2" download style="display: none;">Download</a>`;
+                    break;
+                default:
+                    container.innerHTML = '';
             }
         }
 
@@ -136,14 +164,14 @@
 
         async function cropImage() {
             const filename = document.getElementById('filename').value;
-            const left = document.getElementById('cropLeft').value;
-            const top = document.getElementById('cropTop').value;
-            const right = document.getElementById('cropRight').value;
-            const bottom = document.getElementById('cropBottom').value;
+            const x = document.getElementById('cropX').value;
+            const y = document.getElementById('cropY').value;
+            const width = document.getElementById('cropWidth').value;
+            const height = document.getElementById('cropHeight').value;
             const response = await fetch(`/crop/${filename}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ left, top, right, bottom })
+                body: JSON.stringify({ x, y, width, height })
             });
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
@@ -165,6 +193,10 @@
             const img = document.getElementById('converted');
             img.src = url;
             img.style.display = 'block';
+
+            const downloadLink = document.getElementById('downloadConverted');
+            downloadLink.href = url;
+            downloadLink.style.display = 'block';
         }
     </script>
 </body>
